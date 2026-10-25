@@ -1,4 +1,4 @@
-var wps = localStorage.getItem("wps") || 0;
+var wps = 18;
 var locked = localStorage.getItem("locked");
 
 const walls = [
@@ -20,6 +20,7 @@ const walls = [
   "ThemeD/img1.jpg",
   "ThemeD/img2.jpg",
   "ThemeD/img3.jpg",
+  "AstraOS/astrared.jpg",
 ];
 
 const themes = ["default", "dark", "ThemeA", "ThemeB", "ThemeD", "ThemeC"];

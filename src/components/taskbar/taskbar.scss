@@ -157,3 +157,30 @@ body[data-theme="dark"] {
     transform: scale(1);
   }
 }
+
+/* ===== AstraOS Taskbar Theme ===== */
+.taskbar {
+  --bg1: rgba(18, 18, 20, 0.88);
+  --bg2: rgba(255, 255, 255, 0.12);
+
+  color: #f2f2f2;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+}
+
+.taskbar .taskDate {
+  color: #f2f2f2;
+}
+
+.taskbar .taskIcon svg {
+  color: #f2f2f2;
+}
+
+.taskbar .tsIcon[data-active="true"]:after {
+  background: #ff6847;
+}
+
+.taskbar .tsIcon:hover {
+  border-radius: 7px;
+}
+

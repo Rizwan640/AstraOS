@@ -1,0 +1,85 @@
+name: Build AstraOS Bootable Live ISO
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+      - astraos-custom
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'build-os/**'
+      - 'package.json'
+      - '.github/workflows/build-astraos-iso.yml'
+  release:
+    types: [published]
+
+jobs:
+  build-iso:
+    name: Build Live Linux ISO
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Build AstraOS Web App
+        run: npm run build
+
+      - name: Verify Web Build Directory
+        run: |
+          ls -la build/
+          test -f build/index.html || (echo "build/index.html missing!" && exit 1)
+
+      - name: Install ISO Build Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends \
+            debootstrap \
+            squashfs-tools \
+            xorriso \
+            grub-pc-bin \
+            grub-efi-amd64-bin \
+            mtools \
+            dosfstools \
+            rsync
+
+      - name: Build AstraOS Bootable Live ISO
+        run: |
+          sudo chmod +x build-os/build-iso.sh
+          sudo ./build-os/build-iso.sh
+
+      - name: Calculate Checksums
+        run: |
+          cd output
+          sha256sum AstraOS-v1.0-x86_64.iso > AstraOS-v1.0-x86_64.iso.sha256
+          ls -lh
+
+      - name: Upload ISO Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: AstraOS-v1.0-x86_64-Live-ISO
+          path: output/
+          retention-days: 14
+
+      - name: Upload to GitHub Release (On Release Trigger)
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            output/AstraOS-v1.0-x86_64.iso
+            output/AstraOS-v1.0-x86_64.iso.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

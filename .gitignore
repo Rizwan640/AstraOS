@@ -25,3 +25,14 @@ rough*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+# AstraOS Build & Backups
+agy.exe
+*.bak
+*.astraos-backup
+*.before-*
+output/
+iso_build/
+*.backup
+*search-backup*

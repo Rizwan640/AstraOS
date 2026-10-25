@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { changeTheme } from "../../../actions";
 import { Image, ToolBar } from "../../../utils/general";
@@ -14,6 +14,23 @@ export const Settings = () => {
   const wall = useSelector((state) => state.wallpaper);
 
   const [page, setPage] = useState("System"); // default System
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchTerm = searchQuery.trim().toLowerCase();
+
+  const matchingSections = Object.keys(data).filter((section) => {
+    if (!searchTerm) return true;
+
+    return (
+      section.toLowerCase().includes(searchTerm) ||
+      (data[section] || []).some((item) =>
+        [item.name, item.desc].some((text) =>
+          String(text || "")
+            .toLowerCase()
+            .includes(searchTerm),
+        ),
+      )
+    );
+  });
   const [nav, setNav] = useState("");
   const [updating, setUpdating] = useState(false);
   const [upmodalOpen, setUpmodalOpen] = useState(false);
@@ -83,10 +100,36 @@ export const Settings = () => {
                 className="search"
                 placeholder="Find a setting "
                 name="search"
+                value={searchQuery}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setSearchQuery(value);
+
+                  const term = value.trim().toLowerCase();
+
+                  if (term) {
+                    const match = Object.keys(data).find((section) => {
+                      return (
+                        section.toLowerCase().includes(term) ||
+                        (data[section] || []).some((item) =>
+                          [item.name, item.desc].some((text) =>
+                            String(text || "")
+                              .toLowerCase()
+                              .includes(term),
+                          ),
+                        )
+                      );
+                    });
+
+                    if (match) {
+                      setPage(match);
+                    }
+                  }
+                }}
               />
             </div>
             <div className="nav_bottom win11Scroll">
-              {Object.keys(data).map((e) => {
+              {matchingSections.map((e) => {
                 return (
                   <div
                     key={e}
@@ -116,7 +159,16 @@ export const Settings = () => {
                 <main key={e}>
                   <h1>{e}</h1>
                   <div className="tilesCont win11Scroll">
-                    {data[e].map((e, i) => {
+                    {(searchTerm && !e.toLowerCase().includes(searchTerm)
+                      ? data[e].filter((item) =>
+                          [item.name, item.desc].some((text) =>
+                            String(text || "")
+                              .toLowerCase()
+                              .includes(searchTerm),
+                          ),
+                        )
+                      : data[e]
+                    ).map((e, i) => {
                       switch (e.type) {
                         case "sysTop":
                           return (
@@ -183,14 +235,14 @@ export const Settings = () => {
                                 </div>
                               </div>
                               <div className="box">
-                                <span className="settingsIcon"></span>
+                                <span className="settingsIcon">î•š</span>
                                 <div>
                                   <h3>Properties</h3>
                                   <p>Public network 5 Ghz</p>
                                 </div>
                               </div>
                               <div className="box">
-                                <span className="settingsIcon"></span>
+                                <span className="settingsIcon">î˜†</span>
                                 <div>
                                   <h3>Data Usage</h3>
                                   <p>
@@ -261,7 +313,7 @@ export const Settings = () => {
                         case "langSwitcher":
                           return (
                             <div key={i} className="tile langSwitcherTile">
-                              <span className="settingsIcon"></span>
+                              <span className="settingsIcon">îŸ¸</span>
                               <div className="tile_content">
                                 <p>Windows display language</p>
                                 <p className="tile_desc">
